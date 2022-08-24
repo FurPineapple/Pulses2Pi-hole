@@ -1,19 +1,31 @@
+# Imports
+
 from github import Github
 from OTXv2 import OTXv2
-from datetime import datetime
+from datetime import datetime as dt
 from re import search, compile
 from numpy import array,unique
 from numpy import ndarray as nd
+from sqlite3 import connect
 
 # Service Parameters
 
 otx_key = ('YOUR_OTX_KEY')
-timestamp_file = r'TIMESTAMP'
-file2push = r'RESULT-FILE'
-github_key = ('YOUR_GIT_KEY')
-github_repo = 'YOUR-REPO'
-github_path = 'FOLDER1/'
-github_filename = 'FILE'
+timestamp_file = (
+    '/FULL-PATH/TO/STORED/TIMESTAMP'
+        )
+file2push = (
+    'FULL-PATH/TO/STORING/RESULT-LIST'
+        )
+
+github_key = ('YOUR_GITHUB_KEY')
+github_repo = 'REPOSITORY'
+github_filename = 'FULL-PATH/FILENAME'
+raw_url = 'https://raw.githubusercontent.com/{0}/{1}/main/{2}'
+
+# By default Gravity.DB stored r'/etc/pihole/gravity.db'
+
+gravity_database_path = 'FULL-PATH/TO/GRAVITY.DB'
 
 
 # Regexp hostname to domain
@@ -23,7 +35,7 @@ web_rexp = compile('^w{3}\.(?P<domain>.+)')
 # Commit timestamp of last pulse retrievement
 
 def saveTimestamp(file_path):
-    result_time = datetime.now().isoformat()
+    result_time = dt.now().isoformat()
     with open(file_path, "w") as writer:
         writer.write(result_time)
 
@@ -51,22 +63,23 @@ def pulse2List(pulse,result_list):
                 result_list.append(ind_val)
     return result_list
 
-# Get unique values from list
+# Get unique values from list push to file
 
-def uniqList(list2check):
+def uniqList(list2check,file2put):
     list2array = array(list2check)
     uniq_array = unique(list2array)
     uniq_list = nd.tolist(uniq_array)
-    with open(file2push,'w') as writer:
+    with open(file2put,'w') as writer:
         for element in uniq_list:
             writer.write("0.0.0.0 {}\n".format(element))
 
 # Push result file to GitHub
 
-def push2GitHub(result_file):
+def push2GitHub(git_key,repository,result_file,github_filepath):
     # Set Timeout to 350 in case of large commit file
-    g = Github(github_key,timeout=350)
-    repo = g.get_user().get_repo(github_repo)
+    g = Github(git_key,timeout=350)
+    user = g.get_user().login
+    repo = g.get_user().get_repo(repository)
     all_files = []
     contents = repo.get_contents("")
     while contents:
@@ -87,9 +100,7 @@ def push2GitHub(result_file):
     # Upload to github
 
     git_file = (
-        github_path + 
-        github_filename + 
-        datetime.now().strftime("%y%m%d%H%M")
+        github_filepath + dt.now().strftime("%y%m%d%H%M")
             )
     if git_file in all_files:
         contents = repo.get_contents(git_file)
@@ -102,6 +113,19 @@ def push2GitHub(result_file):
                 )
     else:
         repo.create_file(git_file, "committing files", content, branch="main")
+    return user, git_file
+
+    # Insert URL to adlist table
+
+def map2Gravity(repo,username,file_path,url_format,db_path):
+    full_url = url_format.format(username,repo,file_path)
+    db_connection = connect(db_path)
+    db_cursor = db_connection.cursor()
+    db_cursor.execute(
+        "INSERT INTO adlist (address, enabled, comment)"
+        " VALUES ('{0}', 1, '{1}')".format(full_url,file_path)
+            )
+    db_connection.commit()
 
 # Main
 
@@ -145,8 +169,17 @@ if __name__ == "__main__":
 
     # Get unique list
 
-    uniqList(non_uniq_result)
+    uniqList(non_uniq_result,file2push)
 
-    # Push result file to GitHub
+    # Push result file to GitHub and retrieve username & raw URL
 
-    push2GitHub(file2push)
+    git_user, raw_file =  push2GitHub(
+        github_key,
+        github_repo,
+        file2push,
+        github_filename
+            )
+
+    # Contribute changes to gravity.DB
+
+    map2Gravity(github_repo,git_user,raw_file,raw_url,gravity_database_path)
