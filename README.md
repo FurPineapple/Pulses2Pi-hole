@@ -163,6 +163,12 @@ WantedBy=timers.target
 > Then you can check the state of .timers by using:
 
   `systemctl status YOUR-TIMER-NAME.timer`
+  
+> To activate timers just use:
+
+  `systemctl start YOUR-TIMER-NAME.timer`
+
+> Then the timer will trigger `.service` on the time selected in `.timer` unit.
 
 *That is pretty much it, now in your selected time the code will run, pull OTX pulses, filter dublicates and put list of domains to your GitHub, then Pi-Hole gravity database will get raw file's url and next timer will update database.*
 
