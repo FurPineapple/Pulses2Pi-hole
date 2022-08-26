@@ -138,7 +138,13 @@ OnCalendar=*-*-* 04:00:00
 [Install]
 WantedBy=timers.target
 ```
-**_Please carefully check whether original pi-hole `cronjob` is not running same time `systemd` timers are set! To check use: `cat /etc/cron.d/pihole` and extract time fields of the cronjob containing `pihole updateGravity` command. Check your set time is not interfering._**
+**_Please carefully check whether the original pi-hole `cronjob` is not running at the same time your `systemd` timers are set! To check use:
+
+```
+cat /etc/cron.d/pihole | grep updateGravity
+```
+
+Extract time fields of the cronjob. Check your set time is not interfering._**
 
 Installing Pi-Hole crontab job is set randomly between 3 and 5 am every Sunday. You can check forum thread: 
 
@@ -211,18 +217,33 @@ To activate timers just use:
 
 Then the timer will trigger `.service` on the time selected in `.timer` unit.
 
-That is pretty much it, now in your selected time the code will run, pull OTX pulses, filter duplicates and put list of domains to your GitHub, then Pi-Hole gravity database will get raw file's URL and next timer will update database.
-
 # Important Info:
 
 ***Please note, in case `timestamp` file is empty, does not exist or the path is given incorrectly (only filename is issued) script will trigger `otx.getall()`. In that case script will pull all existing pulses for the selected OTX key. It may take decent amount of time.***
 
- * After `otx.getall()` successfully finishes all the data is stored in the local file system, be sure you gave the path to partition which has some free space. Every day generated lists consume less than 1MB storage, when the `.getall()` function is called it may take around 10MB, according to the count of pulses You have subscribed;
+ * After `otx.getall()` successfully finishes all the data is stored in the local file system, be sure you gave the path to partition which has some free space left. Every day generated lists consume less than 1MB storage, when the `.getall()` function is called it may take around 10MB, according to the count of pulses You have subscribed;
  
- * Locally stored `result-lists` are overwritten every time service awakes.
+ * Locally stored `result-lists` are overwritten every time the service awakes.
  
- * In case filename is given without path, whether it is `timestamp` or `result-list`, file will appear in current user's directory';
+ * In case filename is given without a path, whether it is `timestamp` or `result-list`, file will appear in current user's directory';
  
- * In case path to the `timestamp` or for the `result-list` is not given, programe will be interrupted.
+ * In case path to the `timestamp` or for the `result-list` is not given, program will be interrupted.
   
-***In order to prevent run of `.getall()` function, create timestamp file first, giving it's full path to `Service Parameters`***
+***In order to prevent run of `.getall()` function, create timestamp file first, giving it's full path to `Service Parameters`. It is important to provide the file with timestamp***
+
+Format as follows:
+
+```
+2012-11-29T13:12:14.221917
+
+---------------
+
+Linux format:
+
+%Y-%m-%dT%H:%M:%S.%6N
+
+Python:
+
+from datetime import datetime as dt
+dt.now().isoformat() # To get current time in above format
+```
