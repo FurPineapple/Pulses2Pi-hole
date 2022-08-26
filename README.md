@@ -1,6 +1,6 @@
 # Pulses to Pi-hole
 
-Automate your Pi-Hole DNS sinkhole and restrict access to unreliable - potencially malitious domains without manual monitoring and every day participation. Automated collection of unreliable domain information from OTX AlienVault pulses using PythonSDK. Lists of domains are automatically collected, pushed to your GitHub repository and mapped to the Gravity database.
+Automate your Pi-Hole DNS sinkhole and restrict access to unreliable – potentially malicious domains without manual monitoring and every day participation. Automated collection of unreliable domain information from OTX AlienVault pulses using PythonSDK. Lists of domains are automatically collected, pushed to your GitHub repository and mapped to the Gravity database.
 
 * Dependencies:
 
@@ -68,7 +68,7 @@ github_filename = 'FULL-PATH/FILENAME' #-------------------> Select full path to
                                        #                     => the lists will be stored right into the selected
                                        #                     branch (by default - main) not into separated folders;
                                        
-raw_url = 'https://raw.githubusercontent.com/{0}/{1}/main/{2}' #--> Hardcoded raw file URL. In case branch has been
+raw_url = 'https://raw.githubusercontent.com/{0}/{1}/main/{2}' #--> Hard-coded raw file URL. In case branch has been
                                                                #    changed, change `main` branch to one You use;
                                                                
 gravity_database_path = 'FULL-PATH/TO/GRAVITY.DB'              #--> Path to your local Pi-Hole Gravity database.
@@ -211,7 +211,7 @@ To activate timers just use:
 
 Then the timer will trigger `.service` on the time selected in `.timer` unit.
 
-That is pretty much it, now in your selected time the code will run, pull OTX pulses, filter dublicates and put list of domains to your GitHub, then Pi-Hole gravity database will get raw file's url and next timer will update database.
+That is pretty much it, now in your selected time the code will run, pull OTX pulses, filter duplicates and put list of domains to your GitHub, then Pi-Hole gravity database will get raw file's URL and next timer will update database.
 
 # Important Info:
 
@@ -223,6 +223,6 @@ That is pretty much it, now in your selected time the code will run, pull OTX pu
  
  * In case filename is given without path, whether it is `timestamp` or `result-list`, file will appear in current user's directory';
  
- * In case path to the `timestamp` or for the `result-list` is not given, programmee will be interrupted.
+ * In case path to the `timestamp` or for the `result-list` is not given, programe will be interrupted.
   
 ***In order to prevent run of `.getall()` function, create timestamp file first, giving it's full path to `Service Parameters`***
