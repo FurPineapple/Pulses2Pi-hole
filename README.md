@@ -138,13 +138,13 @@ OnCalendar=*-*-* 04:00:00
 [Install]
 WantedBy=timers.target
 ```
-**_Please carefully check whether the original pi-hole `cronjob` is not running at the same time your `systemd` timers are set! To check use:
+**_Please carefully check whether the original pi-hole `cronjob` is not running at the same time your `systemd` timers are set! To check use:_**
 
 ```
 cat /etc/cron.d/pihole | grep updateGravity
 ```
 
-Extract time fields of the cronjob. Check your set time is not interfering._**
+**_Extract time fields of the cronjob. Check your set time is not interfering._**
 
 Installing Pi-Hole crontab job is set randomly between 3 and 5 am every Sunday. You can check forum thread: 
 
